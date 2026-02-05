@@ -90,7 +90,7 @@ scp habit-tracker/habit_tracker.db pi@habit-tracker.local:/tmp/
 
 ```bash
 # On Pi (via SSH):
-curl -O https://raw.githubusercontent.com/jakeagenticbrain/habit-tracker/main/scripts/setup_pi.sh
+curl -O https://raw.githubusercontent.com/jakeagenticbrain/habit-tracker/main/habit-tracker/scripts/setup_pi.sh
 chmod +x setup_pi.sh
 ./setup_pi.sh
 ```
