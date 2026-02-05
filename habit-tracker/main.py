@@ -2,10 +2,6 @@
 """Entry point for the habit tracker application."""
 
 import os
-from display.pygame_display import PygameDisplay
-from display.lcd_display import LCDDisplay
-from input.keyboard_input import KeyboardInput
-from input.gpio_input import GPIOInput
 from game.app import App
 from game.screens import HomeScreen, MenuScreen, HabitsScreen, StatsScreen
 from game.habit_form_screen import HabitFormScreen
@@ -35,6 +31,8 @@ def main():
     # Create display and input handler based on platform
     if on_pi:
         print("Running on Raspberry Pi - using LCD display and GPIO input")
+        from display.lcd_display import LCDDisplay
+        from input.gpio_input import GPIOInput
         display = LCDDisplay(
             width=Config.DISPLAY_WIDTH,
             height=Config.DISPLAY_HEIGHT
@@ -42,6 +40,8 @@ def main():
         input_handler = GPIOInput()
     else:
         print("Running on laptop - using Pygame display and keyboard input")
+        from display.pygame_display import PygameDisplay
+        from input.keyboard_input import KeyboardInput
         display = PygameDisplay(
             width=Config.DISPLAY_WIDTH,
             height=Config.DISPLAY_HEIGHT,
