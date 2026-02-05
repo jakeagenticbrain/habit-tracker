@@ -2,6 +2,20 @@
 
 A tamagotchi-style habit tracker for Raspberry Pi Zero with 128x128 LCD display.
 
+## Installation
+
+### Laptop Development
+```bash
+pip install -r requirements.txt
+```
+
+### Raspberry Pi Deployment
+```bash
+pip install -r requirements-pi.txt
+```
+
+Note: `pygame` is NOT needed on Pi (uses LCD HAT instead).
+
 ## Development Setup (Laptop)
 
 ```bash
