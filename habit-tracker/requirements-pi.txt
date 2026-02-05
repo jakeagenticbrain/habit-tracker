@@ -1,0 +1,4 @@
+Pillow==10.2.0
+RPi.GPIO==0.7.1
+spidev==3.6
+# LCD driver will be added when hardware arrives
