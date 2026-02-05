@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Entry point for the habit tracker application."""
 
+import os
 from display.pygame_display import PygameDisplay
+from display.lcd_display import LCDDisplay
 from input.keyboard_input import KeyboardInput
+from input.gpio_input import GPIOInput
 from game.app import App
 from game.screens import HomeScreen, MenuScreen, HabitsScreen, StatsScreen
 from game.habit_form_screen import HabitFormScreen
@@ -15,17 +18,36 @@ from config import Config
 from data.db import Database
 
 
+def is_raspberry_pi() -> bool:
+    """Detect if running on Raspberry Pi by checking device tree.
+
+    Returns:
+        True if running on Raspberry Pi, False otherwise.
+    """
+    return os.path.exists('/proc/device-tree/model')
+
+
 def main():
     """Initialize and run the habit tracker."""
-    # Create display using config
-    display = PygameDisplay(
-        width=Config.DISPLAY_WIDTH,
-        height=Config.DISPLAY_HEIGHT,
-        scale=Config.DISPLAY_SCALE
-    )
+    # Detect platform
+    on_pi = is_raspberry_pi()
 
-    # Create input handler
-    input_handler = KeyboardInput()
+    # Create display and input handler based on platform
+    if on_pi:
+        print("Running on Raspberry Pi - using LCD display and GPIO input")
+        display = LCDDisplay(
+            width=Config.DISPLAY_WIDTH,
+            height=Config.DISPLAY_HEIGHT
+        )
+        input_handler = GPIOInput()
+    else:
+        print("Running on laptop - using Pygame display and keyboard input")
+        display = PygameDisplay(
+            width=Config.DISPLAY_WIDTH,
+            height=Config.DISPLAY_HEIGHT,
+            scale=Config.DISPLAY_SCALE
+        )
+        input_handler = KeyboardInput()
 
     # Initialize database
     db = Database("habit_tracker.db")
@@ -63,6 +85,8 @@ def main():
     except KeyboardInterrupt:
         print("\nShutting down...")
     finally:
+        if hasattr(input_handler, 'cleanup'):
+            input_handler.cleanup()
         db.close()
         display.close()
 
