@@ -1,16 +1,5 @@
-# Raspberry Pi specific dependencies
-# Install with: pip install -r requirements-pi.txt
-
-# Core dependencies (same as laptop)
-Pillow==10.2.0
-
-# Pi-specific hardware libraries
+# Pi-specific requirements (no pygame)
+Pillow>=10.0.0
 RPi.GPIO==0.7.1
 spidev==3.6
 st7735==0.0.5
-
-# Database
-# (SQLite is built into Python)
-
-# Optional: Performance monitoring
-# psutil==5.9.8
