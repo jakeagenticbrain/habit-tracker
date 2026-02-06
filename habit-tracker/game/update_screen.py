@@ -19,9 +19,9 @@ class UpdateScreen(ScreenBase):
     4. OK = restart systemd service, Cancel = back to settings
     """
 
-    # Layout constants (match PopupScreen positioning)
-    TEXT_X = 30
-    TEXT_Y = 30
+    # Layout constants
+    TEXT_X = 45
+    TEXT_Y = 50
     TEXT_WIDTH = 80
     OK_BUTTON_X = 23
     CANCEL_BUTTON_X = 55
@@ -229,10 +229,11 @@ class UpdateScreen(ScreenBase):
             y_offset += 10  # Line spacing
 
         # Draw buttons only when showing result
+        # Button sprites are 128x128 full-screen overlays - paste at (0, 0)
         if self.state == "show_result":
             if self.selected_button == 0:
                 # OK button highlighted
-                buffer.paste(self.ok_highlighted, (self.OK_BUTTON_X, self.BUTTON_Y), self.ok_highlighted)
+                buffer.paste(self.ok_highlighted, (0, 0), self.ok_highlighted)
             else:
                 # Cancel button highlighted
-                buffer.paste(self.cancel_highlighted, (self.CANCEL_BUTTON_X, self.BUTTON_Y), self.cancel_highlighted)
+                buffer.paste(self.cancel_highlighted, (0, 0), self.cancel_highlighted)
