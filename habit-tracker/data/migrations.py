@@ -5,7 +5,7 @@ from typing import Callable, List, Tuple
 
 
 # Current schema version
-CURRENT_SCHEMA_VERSION = 1
+CURRENT_SCHEMA_VERSION = 2
 
 
 def get_schema_version(conn: sqlite3.Connection) -> int:
@@ -59,22 +59,53 @@ def migration_001(conn: sqlite3.Connection) -> None:
     pass
 
 
-# Example future migration:
-# def migration_002(conn: sqlite3.Connection) -> None:
-#     """Add reminder_enabled column to habits table."""
-#     cursor = conn.cursor()
-#     cursor.execute("""
-#         ALTER TABLE habits
-#         ADD COLUMN reminder_enabled INTEGER DEFAULT 0
-#     """)
-#     conn.commit()
+def migration_002(conn: sqlite3.Connection) -> None:
+    """Fix habit types: set type='incremental' for multi-count daily habits.
+
+    Updates habits where:
+    - type = 'binary'
+    - recurrence matches 'N/day' where N > 1
+
+    These should be 'incremental' type to show numbered boxes in habit checker.
+    """
+    cursor = conn.cursor()
+
+    # Find all habits with type='binary' and recurrence like 'N/day'
+    cursor.execute("""
+        SELECT id, name, recurrence
+        FROM habits
+        WHERE type = 'binary'
+        AND recurrence LIKE '%/day'
+    """)
+
+    habits_to_update = []
+    for row in cursor.fetchall():
+        habit_id, name, recurrence = row
+        # Parse recurrence (e.g., "3/day" -> 3)
+        if '/' in recurrence:
+            count = int(recurrence.split('/')[0])
+            if count > 1:
+                habits_to_update.append((habit_id, name, recurrence))
+
+    # Update these habits to type='incremental'
+    for habit_id, name, recurrence in habits_to_update:
+        cursor.execute("""
+            UPDATE habits
+            SET type = 'incremental'
+            WHERE id = ?
+        """, (habit_id,))
+        print(f"  - Updated habit '{name}' ({recurrence}) to type='incremental'")
+
+    conn.commit()
+
+    if habits_to_update:
+        print(f"  Fixed {len(habits_to_update)} habit(s) to use incremental type")
 
 
 # List of all migrations (in order)
 MIGRATIONS: List[Tuple[int, str, Callable]] = [
     (1, "Initial schema", migration_001),
-    # Add new migrations here as tuples: (version, description, function)
-    # (2, "Add reminder_enabled column", migration_002),
+    (2, "Fix habit types for multi-count daily habits", migration_002),
 ]
 
 

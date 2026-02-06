@@ -149,11 +149,17 @@ class EditHabitScreen(ScreenBase):
         # Determine category from is_good
         category = "good" if self.is_good else "bad"
 
+        # Auto-detect habit type: incremental if multiple times per day, binary otherwise
+        if self.freq_number > 1 and self.freq_period == "day":
+            habit_type = "incremental"
+        else:
+            habit_type = "binary"
+
         if self.habit_id is None:
             # Create new habit
             self.habit_id = self.db.add_habit(
                 name=self.name,
-                habit_type="binary",  # TODO: Add type selection in UI
+                habit_type=habit_type,
                 points_per=self.points,
                 category=category,
                 recurrence=recurrence
@@ -163,7 +169,7 @@ class EditHabitScreen(ScreenBase):
             self.db.update_habit(
                 habit_id=self.habit_id,
                 name=self.name,
-                habit_type="binary",  # TODO: Add type selection in UI
+                habit_type=habit_type,
                 points_per=self.points,
                 category=category,
                 recurrence=recurrence,
