@@ -29,7 +29,7 @@ class SpeechBubbleWidget:
             self.anim_frames.append(frame_128)
 
         # Load font for text
-        self.font = load_font(Config.FONT_REGULAR, 10)
+        self.font = load_font(Config.FONT_REGULAR, 12)
 
         # State machine: hidden, animating_in, showing, animating_out
         self.state = "hidden"
