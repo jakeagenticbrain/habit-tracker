@@ -107,6 +107,12 @@ class App:
                 view_screen = self.screens[next_screen]
                 if isinstance(view_screen, ViewHabitsScreen):
                     view_screen.reload_habits()
+            # Special handling for habit_checker screen - reload habit list
+            elif next_screen == "habit_checker":
+                from game.habit_checker_screen import HabitCheckerScreen
+                checker_screen = self.screens[next_screen]
+                if isinstance(checker_screen, HabitCheckerScreen):
+                    checker_screen.reload_habits()
 
             self.current_screen_name = next_screen
             self.current_screen = self.screens[next_screen]

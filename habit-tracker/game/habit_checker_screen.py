@@ -130,6 +130,15 @@ class HabitCheckerScreen(ScreenBase):
                 "checks": checks
             })
 
+    def reload_habits(self):
+        """Reload habits from database (called when returning to this screen)."""
+        self._load_habits()
+        # Reset selection if out of bounds
+        if self.selected_habit >= len(self.habits):
+            self.selected_habit = 0
+        # Recalculate day letters in case date changed
+        self.day_letters = self._get_past_3_days()
+
     def _save_checkbox(self, habit_idx: int, day_idx: int, checked: bool):
         """Save checkbox state to database.
 
