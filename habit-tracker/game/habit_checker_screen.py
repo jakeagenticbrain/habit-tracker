@@ -55,10 +55,30 @@ class HabitCheckerScreen(ScreenBase):
         # Load icons sprite sheet
         self.icons_sheet = SpriteSheet(Config.ICONS_SPRITE_SHEET)
 
-        # Load highlighted checkbox sprites (16x16 tiles, stacked vertically)
+        # Load highlighted checkbox sprites (16x16 tiles)
         self.highlight_sheet = SpriteSheet(Config.HIGHLIGHTED_CHECKBOXES, 16, 16)
         self.checked_highlight = self.highlight_sheet.get_sprite(0, 0)  # Top tile
         self.unchecked_highlight = self.highlight_sheet.get_sprite(0, 1)  # Bottom tile
+
+        # Load numbered box sprites for daily incremental habits
+        # Highlighted (row 3 = index 2)
+        self.numbered_highlight = [
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_1_HIGHLIGHTED),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_2_HIGHLIGHTED),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_3_HIGHLIGHTED),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_4_HIGHLIGHTED),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_5_HIGHLIGHTED),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_6_HIGHLIGHTED),
+        ]
+        # Non-highlighted (row 4 = index 3)
+        self.numbered_normal = [
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_1),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_2),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_3),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_4),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_5),
+            self.highlight_sheet.get_sprite(*icons.NUMBERED_BOX_6),
+        ]
 
         # Load font for crisp text rendering
         from assets.sprite_loader import load_font
@@ -115,18 +135,34 @@ class HabitCheckerScreen(ScreenBase):
 
         self.habits = []
         for h in db_habits:
+            # Check if this is a daily incremental habit
+            is_daily_incremental = (h['type'] == 'incremental' and
+                                   '/day' in h.get('recurrence', ''))
+
             # Get logs for this habit for the 3-day range
             logs = self.db.get_habit_logs(h['id'], start_date=dates[0], end_date=dates[2])
 
-            # Build checks array (True/False for each day)
+            # Build checks array
+            # For daily incrementals: store quantity (0-6)
+            # For binary/weekly incrementals: store True/False
             checks = []
             for date in dates:
                 log = next((l for l in logs if l['date'] == date), None)
-                checks.append(bool(log and log['completed']) if log else False)
+                if is_daily_incremental:
+                    # Store quantity (0 if not completed, 1-6 if completed)
+                    quantity = log['quantity'] if log and log['completed'] else 0
+                    # Clamp to 0-6 range
+                    checks.append(max(0, min(6, quantity)))
+                else:
+                    # Binary check
+                    checks.append(bool(log and log['completed']) if log else False)
 
             self.habits.append({
                 "id": h['id'],
                 "name": h['name'],
+                "type": h['type'],
+                "recurrence": h.get('recurrence', 'daily'),
+                "is_daily_incremental": is_daily_incremental,
                 "checks": checks
             })
 
@@ -139,13 +175,14 @@ class HabitCheckerScreen(ScreenBase):
         # Recalculate day letters in case date changed
         self.day_letters = self._get_past_3_days()
 
-    def _save_checkbox(self, habit_idx: int, day_idx: int, checked: bool):
+    def _save_checkbox(self, habit_idx: int, day_idx: int, value):
         """Save checkbox state to database.
 
         Args:
             habit_idx: Index of habit in self.habits
             day_idx: Index of day (0=2 days ago, 1=yesterday, 2=today)
-            checked: New checked state
+            value: For binary habits: bool (checked/unchecked)
+                   For daily incrementals: int (0-6 count)
         """
         habit = self.habits[habit_idx]
         habit_id = habit['id']
@@ -156,15 +193,26 @@ class HabitCheckerScreen(ScreenBase):
 
         # Get habit details for points calculation
         db_habit = self.db.get_habit_by_id(habit_id)
-        points = db_habit['points_per'] if checked else 0
+
+        # Determine completed status and quantity based on habit type
+        if habit["is_daily_incremental"]:
+            # Incremental habit: value is count (0-6)
+            quantity = value
+            completed = (quantity > 0)
+            points = db_habit['points_per'] * quantity
+        else:
+            # Binary habit: value is boolean
+            completed = value
+            quantity = 1 if completed else 0
+            points = db_habit['points_per'] if completed else 0
 
         # Save to database
         self.db.log_habit_completion(
             habit_id=habit_id,
             date=target_date,
-            completed=checked,
+            completed=completed,
             skipped=False,
-            quantity=1 if checked else 0,
+            quantity=quantity,
             points_earned=points
         )
 
@@ -210,14 +258,25 @@ class HabitCheckerScreen(ScreenBase):
             elif event.input_type == InputType.RIGHT:
                 self.selected_day = (self.selected_day + 1) % 3
             elif event.input_type == InputType.BUTTON_A:
-                # Toggle checkbox
+                # Toggle checkbox or cycle through numbers
                 habit = self.habits[self.selected_habit]
-                old_state = habit["checks"][self.selected_day]
-                new_state = not old_state
-                habit["checks"][self.selected_day] = new_state
 
-                # Save to database
-                self._save_checkbox(self.selected_habit, self.selected_day, new_state)
+                if habit["is_daily_incremental"]:
+                    # Cycle through 0 → 1 → 2 → 3 → 4 → 5 → 6 → 0
+                    current_count = habit["checks"][self.selected_day]
+                    new_count = (current_count + 1) % 7
+                    habit["checks"][self.selected_day] = new_count
+
+                    # Save to database
+                    self._save_checkbox(self.selected_habit, self.selected_day, new_count)
+                else:
+                    # Binary toggle
+                    old_state = habit["checks"][self.selected_day]
+                    new_state = not old_state
+                    habit["checks"][self.selected_day] = new_state
+
+                    # Save to database
+                    self._save_checkbox(self.selected_habit, self.selected_day, new_state)
             elif event.input_type == InputType.BUTTON_B:
                 # Exit checkbox mode
                 self.checkbox_mode = False
@@ -293,23 +352,39 @@ class HabitCheckerScreen(ScreenBase):
             # Draw text directly for crisp rendering
             draw.text((self.NAME_X, y), name, fill=text_color, font=self.font)
 
-            # Render checkboxes for each day
-            for day_idx, checked in enumerate(habit["checks"]):
+            # Render checkboxes or numbered boxes for each day
+            for day_idx, value in enumerate(habit["checks"]):
                 checkbox_x = self.CHECKBOX_START_X + day_idx * self.CHECKBOX_SPACING
 
                 # Check if this checkbox is selected in checkbox mode
                 is_selected = self.checkbox_mode and habit_idx == self.selected_habit and day_idx == self.selected_day
 
-                # Choose sprite based on checked state and selection
-                if is_selected:
-                    # Use highlighted sprite
-                    sprite = self.checked_highlight if checked else self.unchecked_highlight
-                else:
-                    # Use normal sprite
-                    if checked:
-                        sprite = self.icons_sheet.get_sprite(*icons.CHECKED_BOX_SMALL)
+                # Choose sprite based on habit type
+                if habit["is_daily_incremental"]:
+                    # Daily incremental: show numbered boxes (value = 0-6)
+                    if value == 0:
+                        # Unchecked
+                        if is_selected:
+                            sprite = self.unchecked_highlight
+                        else:
+                            sprite = self.icons_sheet.get_sprite(*icons.UNCHECKED_BOX_SMALL)
                     else:
-                        sprite = self.icons_sheet.get_sprite(*icons.UNCHECKED_BOX_SMALL)
+                        # Numbered box 1-6
+                        if is_selected:
+                            sprite = self.numbered_highlight[value - 1]
+                        else:
+                            sprite = self.numbered_normal[value - 1]
+                else:
+                    # Binary habit: show checkboxes (value = True/False)
+                    if is_selected:
+                        # Use highlighted sprite
+                        sprite = self.checked_highlight if value else self.unchecked_highlight
+                    else:
+                        # Use normal sprite
+                        if value:
+                            sprite = self.icons_sheet.get_sprite(*icons.CHECKED_BOX_SMALL)
+                        else:
+                            sprite = self.icons_sheet.get_sprite(*icons.UNCHECKED_BOX_SMALL)
 
                 # Paste checkbox sprite (moved up 5 pixels)
                 checkbox_y = y - 5

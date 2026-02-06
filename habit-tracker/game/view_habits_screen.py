@@ -44,6 +44,9 @@ class ViewHabitsScreen(ScreenBase):
         # Load icons
         self.icons_sheet = SpriteSheet(Config.ICONS_SPRITE_SHEET, 16, 16)
 
+        # Load highlighted-checkboxes sprite sheet for the shorter pointer
+        self.highlight_sheet = SpriteSheet(Config.HIGHLIGHTED_CHECKBOXES, 16, 16)
+
         # Load font
         self.font = load_font(Config.FONT_REGULAR, 8)
 
@@ -208,14 +211,15 @@ class ViewHabitsScreen(ScreenBase):
         draw.fontmode = '1'  # CRITICAL: Disable anti-aliasing for pixel-perfect text
 
         # Draw habit list
-        arrow_sprite = self.icons_sheet.get_sprite(*icons.ARROW_SMALL)
+        # Use shorter pointer from highlighted-checkboxes.png
+        pointer_sprite = self.highlight_sheet.get_sprite(*icons.POINTER_SHORT)
 
         for i, habit in enumerate(self.habits):
             y_pos = self.HABIT_LIST_START_Y + (i * self.LINE_HEIGHT)
 
-            # Draw arrow if selected
+            # Draw pointer if selected
             if i == self.selected_index:
-                buffer.paste(arrow_sprite, (self.ARROW_X, y_pos - 5), arrow_sprite)
+                buffer.paste(pointer_sprite, (self.ARROW_X, y_pos - 5), pointer_sprite)
 
             # Draw habit name (scrolling if selected, truncated if not)
             name = habit["name"]

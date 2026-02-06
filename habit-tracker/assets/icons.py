@@ -30,6 +30,32 @@ TEA_ICON = (5, 2)
 COFFEE_ICON = (6, 2)
 HOME_ICON = (7, 2)
 
+# ==============================================================================
+# HIGHLIGHTED-CHECKBOXES.PNG SPRITE SHEET (separate from icons.png)
+# ==============================================================================
+# Note: These coordinates are for the highlighted-checkboxes.png sprite sheet,
+# not icons.png. Use with SpriteSheet(Config.HIGHLIGHTED_CHECKBOXES, 16, 16)
+
+# Highlighted numbered boxes (row 3, 1-based = row 2, 0-indexed)
+NUMBERED_BOX_1_HIGHLIGHTED = (0, 2)
+NUMBERED_BOX_2_HIGHLIGHTED = (1, 2)
+NUMBERED_BOX_3_HIGHLIGHTED = (2, 2)
+NUMBERED_BOX_4_HIGHLIGHTED = (3, 2)
+NUMBERED_BOX_5_HIGHLIGHTED = (4, 2)
+NUMBERED_BOX_6_HIGHLIGHTED = (5, 2)
+
+# Non-highlighted numbered boxes (row 4, 1-based = row 3, 0-indexed)
+NUMBERED_BOX_1 = (0, 3)
+NUMBERED_BOX_2 = (1, 3)
+NUMBERED_BOX_3 = (2, 3)
+NUMBERED_BOX_4 = (3, 3)
+NUMBERED_BOX_5 = (4, 3)
+NUMBERED_BOX_6 = (5, 3)
+
+# New shorter pointer for view habits screen (B1, 1-based = column 1, row 0, 0-indexed)
+# This is in highlighted-checkboxes.png, not icons.png
+POINTER_SHORT = (1, 0)
+
 # Progress bar rows (full-width 128x16)
 # Use SpriteSheet.get_row() for these
 # Rows from icons.png
