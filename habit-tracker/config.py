@@ -51,12 +51,26 @@ class Config:
         os.path.join(SPRITES_PATH, "face-little-smile.png"),
     ]
 
+    # Animated sprite sheets (64x64 per frame, needs 2x scaling to 128x128)
+    CHARACTER_ANIM_SPRITE = os.path.join(SPRITES_PATH, "lilguy-animated.png")
+    FACE_ANIM_SPRITES = {
+        "happy": os.path.join(SPRITES_PATH, "face-happy-animated.png"),
+        "bruh": os.path.join(SPRITES_PATH, "face-bruh-animated.png"),
+        "oh": os.path.join(SPRITES_PATH, "face-oh-animated.png"),
+        "teeth-smile": os.path.join(SPRITES_PATH, "face-teeth-smile-animated.png"),
+        "little-smile": os.path.join(SPRITES_PATH, "face-little-smile-animated.png"),
+    }
+
+    # Animation settings
+    ANIM_FRAME_DELAY = 0.15  # 150ms per frame (~6.7 FPS for character animation)
+
     # New UI screen backgrounds
     SETTINGS_BG = os.path.join(SPRITES_PATH, "settings-page", "settings-bg.png")
     HABIT_SETTINGS_BG = os.path.join(SPRITES_PATH, "habit-settings-page", "habit-settings-page-bg.png")
     EDIT_HABIT_BG = os.path.join(SPRITES_PATH, "edit-habits-settings-page", "edit-habit-bg.png")
     HABIT_CHECKER_BG = os.path.join(SPRITES_PATH, "habit-checker-page", "habits-checker-bg.png")
     POPUP_BG = os.path.join(SPRITES_PATH, "popup", "popup-bg.png")
+    UPDATE_POPUP_BG = os.path.join(SPRITES_PATH, "popup", "update-popup.png")
 
     # UI button sprites
     NEW_HABIT_BUTTON_NORMAL = os.path.join(SPRITES_PATH, "habit-settings-page", "new-habit-button-normal.png")

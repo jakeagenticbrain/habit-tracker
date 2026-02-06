@@ -4,6 +4,7 @@ import sqlite3
 import json
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from data.migrations import check_and_migrate
 
 
 class Database:
@@ -19,6 +20,8 @@ class Database:
         self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row
         self._create_schema()
+        # Run any pending migrations
+        check_and_migrate(self.conn)
 
     def _create_schema(self) -> None:
         """Create database tables if they don't exist."""

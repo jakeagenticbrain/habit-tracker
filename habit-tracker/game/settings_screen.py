@@ -12,7 +12,7 @@ from config import Config
 class SettingsScreen(ScreenBase):
     """Settings menu screen with selectable options."""
 
-    MENU_ITEMS = ["Wifi", "Habits", "Theme", "Tutorial", "About"]
+    MENU_ITEMS = ["Wifi", "Habits", "Update", "Theme", "Tutorial", "About"]
     MENU_START_Y = 35  # Y position where menu items start (below title bar)
     MENU_LINE_HEIGHT = 12  # Pixels between menu items
     POINTER_X = 93  # X position for pointer icon (right side)
@@ -42,9 +42,11 @@ class SettingsScreen(ScreenBase):
         elif event.input_type == InputType.DOWN:
             self.selected_index = min(len(self.MENU_ITEMS) - 1, self.selected_index + 1)
         elif event.input_type == InputType.BUTTON_A:
-            # Only "Habits" is functional for now
-            if self.MENU_ITEMS[self.selected_index] == "Habits":
+            selected_item = self.MENU_ITEMS[self.selected_index]
+            if selected_item == "Habits":
                 return "view_habits"
+            elif selected_item == "Update":
+                return "update"
         elif event.input_type == InputType.LEFT:
             return "stats"  # Back to carousel
 
