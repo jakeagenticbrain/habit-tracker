@@ -105,6 +105,9 @@ class HabitCheckerScreen(ScreenBase):
     def _load_habits(self):
         """Load habits and their completion status from database."""
         db_habits = self.db.get_all_habits(active_only=True)
+        print(f"[DEBUG] HabitCheckerScreen._load_habits: Found {len(db_habits)} active habits")
+        for h in db_habits:
+            print(f"  - Habit ID {h['id']}: {h['name']} (active={h.get('active', 'N/A')})")
 
         # Get dates for past 2 days + today
         today = datetime.now()

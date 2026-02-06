@@ -98,7 +98,9 @@ class Database:
         """, (name, habit_type, points_per, category, target_time, grace_period, recurrence))
 
         self.conn.commit()
-        return cursor.lastrowid
+        habit_id = cursor.lastrowid
+        print(f"[DEBUG] Database.add_habit: Created habit ID {habit_id} (name='{name}', active should default to 1)")
+        return habit_id
 
     def update_habit(
         self,
@@ -168,7 +170,9 @@ class Database:
             cursor.execute("SELECT * FROM habits ORDER BY created_at")
 
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        habits = [dict(row) for row in rows]
+        print(f"[DEBUG] Database.get_all_habits(active_only={active_only}): Returning {len(habits)} habits")
+        return habits
 
     def get_habit_by_id(self, habit_id: int) -> Optional[Dict[str, Any]]:
         """Get a single habit by ID.
