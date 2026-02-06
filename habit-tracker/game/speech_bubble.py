@@ -8,9 +8,9 @@ from config import Config
 class SpeechBubbleWidget:
     """Widget for animated speech bubble with scrolling text."""
 
-    # Text area within the bubble (scaled 2x from 64x64 coords, adjusted +4px down)
+    # Text area within the bubble (scaled 2x from 64x64 coords, adjusted)
     TEXT_START_X = 28
-    TEXT_START_Y = 16  # 12 + 4px down
+    TEXT_START_Y = 14  # 12 + 4px down - 2px up = 14
     TEXT_END_X = 110  # 55 * 2 = 110
     TEXT_MAX_WIDTH = 82  # 110 - 28 = 82px
 
@@ -156,6 +156,7 @@ class SpeechBubbleWidget:
             buffer: PIL Image to draw to
         """
         draw = ImageDraw.Draw(buffer)
+        draw.fontmode = '1'  # Disable anti-aliasing for pixel-perfect text
 
         if self._should_scroll():
             # Create scrolling text: "text   text"
