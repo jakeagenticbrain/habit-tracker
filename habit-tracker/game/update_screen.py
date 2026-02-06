@@ -1,12 +1,18 @@
 """Update screen for checking and installing git updates."""
 
 import subprocess
+import sys
 from PIL import Image, ImageDraw
 from typing import Optional
 from input.input_base import InputEvent, InputType
 from game.screens import ScreenBase
 from assets.sprite_loader import load_font
 from config import Config
+
+
+def debug_log(msg):
+    """Print debug message to stdout (visible in systemd journal)."""
+    print(f"[UPDATE] {msg}", file=sys.stderr, flush=True)
 
 
 class UpdateScreen(ScreenBase):
@@ -51,7 +57,10 @@ class UpdateScreen(ScreenBase):
             (success, message) tuple
         """
         try:
+            debug_log(f"Starting update check in {Config.BASE_DIR}")
+
             # First, fetch to see if there are updates
+            debug_log("Running: git fetch origin main")
             result = subprocess.run(
                 ["git", "fetch", "origin", "main"],
                 cwd=Config.BASE_DIR,
@@ -60,10 +69,37 @@ class UpdateScreen(ScreenBase):
                 timeout=10
             )
 
+            debug_log(f"Fetch result: rc={result.returncode}")
+            debug_log(f"Fetch stdout: {result.stdout}")
+            debug_log(f"Fetch stderr: {result.stderr}")
+
             if result.returncode != 0:
                 return False, f"Fetch failed:\n{result.stderr[:40]}"
 
+            # Get local commit
+            result_local = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=Config.BASE_DIR,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            local_hash = result_local.stdout.strip()[:8] if result_local.returncode == 0 else "unknown"
+            debug_log(f"Local commit: {local_hash}")
+
+            # Get remote commit
+            result_remote = subprocess.run(
+                ["git", "rev-parse", "origin/main"],
+                cwd=Config.BASE_DIR,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            remote_hash = result_remote.stdout.strip()[:8] if result_remote.returncode == 0 else "unknown"
+            debug_log(f"Remote commit: {remote_hash}")
+
             # Check if we're behind
+            debug_log("Running: git rev-list --count HEAD..origin/main")
             result = subprocess.run(
                 ["git", "rev-list", "--count", "HEAD..origin/main"],
                 cwd=Config.BASE_DIR,
@@ -72,10 +108,14 @@ class UpdateScreen(ScreenBase):
                 timeout=5
             )
 
+            debug_log(f"Rev-list result: rc={result.returncode}")
+            debug_log(f"Rev-list stdout: {result.stdout}")
+
             if result.returncode != 0:
                 return False, "Could not check\nfor updates"
 
             commits_behind = int(result.stdout.strip())
+            debug_log(f"Commits behind: {commits_behind}")
 
             if commits_behind == 0:
                 return False, "Already up\nto date!"
