@@ -8,9 +8,9 @@ from config import Config
 class SpeechBubbleWidget:
     """Widget for animated speech bubble with scrolling text."""
 
-    # Text area within the bubble (scaled 2x from 64x64 coords: 14,6 → 28,12)
+    # Text area within the bubble (scaled 2x from 64x64 coords, adjusted +4px down)
     TEXT_START_X = 28
-    TEXT_START_Y = 12
+    TEXT_START_Y = 16  # 12 + 4px down
     TEXT_END_X = 110  # 55 * 2 = 110
     TEXT_MAX_WIDTH = 82  # 110 - 28 = 82px
 
@@ -29,7 +29,7 @@ class SpeechBubbleWidget:
             self.anim_frames.append(frame_128)
 
         # Load font for text
-        self.font = load_font(Config.FONT_REGULAR, 8)
+        self.font = load_font(Config.FONT_REGULAR, 10)
 
         # State machine: hidden, animating_in, showing, animating_out
         self.state = "hidden"
