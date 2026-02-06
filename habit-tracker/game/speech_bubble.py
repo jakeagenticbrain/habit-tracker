@@ -8,11 +8,12 @@ from config import Config
 class SpeechBubbleWidget:
     """Widget for animated speech bubble with scrolling text."""
 
-    # Text area within the bubble (scaled 2x from 64x64 coords, adjusted)
+    # Text area within the bubble (scaled 2x from 64x64 coords: x14-55 → x28-110)
     TEXT_START_X = 28
-    TEXT_START_Y = 14  # 12 + 4px down - 2px up = 14
-    TEXT_END_X = 110  # 55 * 2 = 110
+    TEXT_START_Y = 14
+    TEXT_END_X = 110  # 55 * 2 = 110 (cutoff point)
     TEXT_MAX_WIDTH = 82  # 110 - 28 = 82px
+    MAX_CHARS_VISIBLE = 11  # Approximate chars that fit in 82px at 12pt (~7.5px/char)
 
     def __init__(self):
         """Initialize speech bubble widget."""
@@ -145,9 +146,8 @@ class SpeechBubbleWidget:
         Returns:
             True if text exceeds max width
         """
-        # Rough estimate: 4-5 pixels per character at 8pt
-        estimated_width = len(self.text) * 5
-        return estimated_width > self.TEXT_MAX_WIDTH
+        # Check if text exceeds visible character limit
+        return len(self.text) > self.MAX_CHARS_VISIBLE
 
     def _render_text(self, buffer: Image.Image):
         """Render text with scrolling if needed.
@@ -156,14 +156,15 @@ class SpeechBubbleWidget:
             buffer: PIL Image to draw to
         """
         draw = ImageDraw.Draw(buffer)
-        draw.fontmode = '1'  # Disable anti-aliasing for pixel-perfect text
+        # Anti-aliasing enabled for 12pt font readability
 
         if self._should_scroll():
             # Create scrolling text: "text   text"
             extended_text = self.text + "   " + self.text
-            display_text = extended_text[self.scroll_offset:]
+            display_text = extended_text[self.scroll_offset:self.scroll_offset + self.MAX_CHARS_VISIBLE]
         else:
-            display_text = self.text
+            # Truncate to max visible chars
+            display_text = self.text[:self.MAX_CHARS_VISIBLE]
 
         # Draw text at specified position
         draw.text(
