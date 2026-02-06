@@ -11,6 +11,7 @@ from game.edit_habit_screen import EditHabitScreen
 from game.habit_checker_screen import HabitCheckerScreen
 from game.popup_screen import PopupScreen
 from game.update_screen import UpdateScreen
+from game.about_screen import AboutScreen
 from config import Config
 from data.db import Database
 
@@ -71,6 +72,7 @@ def main():
             on_cancel_screen="view_habits"
         ),
         "update": UpdateScreen(),
+        "about": AboutScreen(),
     }
 
     # Create and run app

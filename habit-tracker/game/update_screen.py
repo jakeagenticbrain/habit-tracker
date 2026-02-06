@@ -27,8 +27,10 @@ class UpdateScreen(ScreenBase):
 
     # Layout constants
     TEXT_X = 45
-    TEXT_Y = 45
     TEXT_MAX_X = 113  # Max x position before wrapping
+    TEXT_AREA_TOP = 30  # Top of text area
+    TEXT_AREA_HEIGHT = 70  # Available height (30 to 100, before buttons at 107)
+    LINE_HEIGHT = 10  # Pixels per line
     OK_BUTTON_X = 23
     CANCEL_BUTTON_X = 55
     BUTTON_Y = 107
@@ -305,15 +307,21 @@ class UpdateScreen(ScreenBase):
         # Draw background
         buffer.paste(self.bg_sprite, (0, 0), self.bg_sprite)
 
-        # Draw message text with wrapping
+        # Draw message text with wrapping and auto-centering
         draw = ImageDraw.Draw(buffer)
 
         # Wrap text to fit within TEXT_X to TEXT_MAX_X
         lines = self._wrap_text(self.message)
-        y_offset = self.TEXT_Y
+
+        # Calculate vertical centering
+        total_text_height = len(lines) * self.LINE_HEIGHT
+        text_start_y = self.TEXT_AREA_TOP + (self.TEXT_AREA_HEIGHT - total_text_height) // 2
+
+        # Draw centered text
+        y_offset = text_start_y
         for line in lines:
             draw.text((self.TEXT_X, y_offset), line, fill=Config.COLOR_TEXT_DARK, font=self.font)
-            y_offset += 10  # Line spacing
+            y_offset += self.LINE_HEIGHT
 
         # Draw buttons only when showing result
         # Button sprites are 128x128 full-screen overlays - paste at (0, 0)

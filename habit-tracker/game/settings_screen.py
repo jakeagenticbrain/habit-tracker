@@ -47,6 +47,8 @@ class SettingsScreen(ScreenBase):
                 return "view_habits"
             elif selected_item == "Update":
                 return "update"
+            elif selected_item == "About":
+                return "about"
         elif event.input_type == InputType.LEFT:
             return "stats"  # Back to carousel
 
