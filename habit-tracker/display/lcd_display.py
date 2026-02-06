@@ -46,7 +46,7 @@ class LCDDisplay(DisplayBase):
             spi_speed_hz=4000000,  # 4 MHz SPI speed
             offset_left=2,    # Horizontal offset for Waveshare HAT
             offset_top=3,     # Vertical offset for Waveshare HAT
-            invert=True,      # Color inversion for proper colors
+            invert=False,     # No color inversion needed
             bgr=True          # BGR color order for Waveshare HAT
         )
 
