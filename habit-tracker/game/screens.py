@@ -48,22 +48,37 @@ class HomeScreen(ScreenBase):
     """Home screen showing layered character with animated expressions."""
 
     def __init__(self):
-        """Initialize home screen with character sprites."""
-        # Load and scale sprites to 128x128 (2x from 64x64 source)
+        """Initialize home screen with animated character sprites."""
+        # Load and scale background to 128x128 (2x from 64x64 source)
         bg_raw = Image.open(Config.BACKGROUND_SPRITE)
-        char_raw = Image.open(Config.CHARACTER_SPRITE)
-
         self.background = bg_raw.resize((128, 128), Image.NEAREST)
-        self.character = char_raw.resize((128, 128), Image.NEAREST)
 
-        # Load and scale all facial expressions
-        self.faces = []
-        for face_path in Config.FACE_SPRITES:
-            face_raw = Image.open(face_path)
-            face_scaled = face_raw.resize((128, 128), Image.NEAREST)
-            self.faces.append(face_scaled)
+        # Load animated body sprite sheet (4 frames, 64x64 each)
+        body_sheet = SpriteSheet(Config.CHARACTER_ANIM_SPRITE, 64, 64)
+        self.body_frames = []
+        for i in range(4):  # 4 frames
+            frame_64 = body_sheet.get_sprite(i, 0)  # Get 64x64 frame
+            frame_128 = frame_64.resize((128, 128), Image.NEAREST)  # Scale to 128x128
+            self.body_frames.append(frame_128)
 
-        # Current facial expression index
+        # Load animated face sprite sheets (4 frames each, 64x64)
+        self.face_animations = {}
+        for face_name, face_path in Config.FACE_ANIM_SPRITES.items():
+            face_sheet = SpriteSheet(face_path, 64, 64)
+            frames = []
+            for i in range(4):  # 4 frames per expression
+                frame_64 = face_sheet.get_sprite(i, 0)
+                frame_128 = frame_64.resize((128, 128), Image.NEAREST)
+                frames.append(frame_128)
+            self.face_animations[face_name] = frames
+
+        # Animation state
+        self.current_frame = 0
+        self.frame_timer = 0.0
+        self.frame_delay = Config.ANIM_FRAME_DELAY
+
+        # Current facial expression
+        self.face_names = list(self.face_animations.keys())
         self.current_face_index = 0
 
     def handle_input(self, event: InputEvent) -> Optional[str]:
@@ -73,7 +88,7 @@ class HomeScreen(ScreenBase):
 
         # Button C cycles facial expressions
         if event.input_type == InputType.BUTTON_C:
-            self.current_face_index = (self.current_face_index + 1) % len(self.faces)
+            self.current_face_index = (self.current_face_index + 1) % len(self.face_names)
             return None
 
         # Navigate right to menu
@@ -87,20 +102,28 @@ class HomeScreen(ScreenBase):
         return None
 
     def update(self, delta_time: float) -> None:
-        """Update home screen."""
-        pass
+        """Update animation frames."""
+        # Advance animation timer
+        self.frame_timer += delta_time
+
+        # Advance to next frame when timer exceeds delay
+        if self.frame_timer >= self.frame_delay:
+            self.frame_timer = 0.0
+            self.current_frame = (self.current_frame + 1) % 4  # Loop through 4 frames
 
     def render(self, buffer: Image.Image) -> None:
-        """Render layered character sprites."""
-        # Layer 1: Background (sky)
+        """Render layered animated character sprites."""
+        # Layer 1: Background (sky) - static
         buffer.paste(self.background, (0, 0))
 
-        # Layer 2: Character body
-        buffer.paste(self.character, (0, 0), self.character)
+        # Layer 2: Character body - animated
+        body_frame = self.body_frames[self.current_frame]
+        buffer.paste(body_frame, (0, 0), body_frame)
 
-        # Layer 3: Current facial expression
-        current_face = self.faces[self.current_face_index]
-        buffer.paste(current_face, (0, 0), current_face)
+        # Layer 3: Current facial expression - animated
+        current_face_name = self.face_names[self.current_face_index]
+        face_frame = self.face_animations[current_face_name][self.current_frame]
+        buffer.paste(face_frame, (0, 0), face_frame)
 
 
 class MenuScreen(ScreenBase):
