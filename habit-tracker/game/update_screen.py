@@ -27,7 +27,7 @@ class UpdateScreen(ScreenBase):
 
     # Layout constants
     TEXT_X = 45
-    TEXT_MAX_X = 113  # Max x position before wrapping
+    TEXT_MAX_X = 119  # Max x position before wrapping
     TEXT_AREA_TOP = 30  # Top of text area
     TEXT_AREA_HEIGHT = 70  # Available height (30 to 100, before buttons at 107)
     LINE_HEIGHT = 10  # Pixels per line
@@ -145,7 +145,7 @@ class UpdateScreen(ScreenBase):
             msg = "Update found"
             if deps_updated:
                 msg += "\nDeps installed"
-            msg += "\nRestart now?"
+            msg += "\nRestart?"
 
             return True, msg
 
@@ -313,9 +313,9 @@ class UpdateScreen(ScreenBase):
         # Wrap text to fit within TEXT_X to TEXT_MAX_X
         lines = self._wrap_text(self.message)
 
-        # Calculate vertical centering
+        # Calculate vertical centering (adjusted 5px higher)
         total_text_height = len(lines) * self.LINE_HEIGHT
-        text_start_y = self.TEXT_AREA_TOP + (self.TEXT_AREA_HEIGHT - total_text_height) // 2
+        text_start_y = self.TEXT_AREA_TOP + (self.TEXT_AREA_HEIGHT - total_text_height) // 2 - 5
 
         # Draw centered text
         y_offset = text_start_y
