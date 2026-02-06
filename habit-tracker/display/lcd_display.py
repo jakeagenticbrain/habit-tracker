@@ -42,8 +42,12 @@ class LCDDisplay(DisplayBase):
             backlight=24,     # Backlight pin
             width=width,
             height=height,
-            rotation=0,       # No rotation
-            spi_speed_hz=4000000  # 4 MHz SPI speed
+            rotation=90,      # 90° rotation for correct orientation
+            spi_speed_hz=4000000,  # 4 MHz SPI speed
+            offset_left=2,    # Horizontal offset for Waveshare HAT
+            offset_top=3,     # Vertical offset for Waveshare HAT
+            invert=True,      # Color inversion for proper colors
+            bgr=True          # BGR color order for Waveshare HAT
         )
 
         # Initialize display

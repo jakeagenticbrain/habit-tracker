@@ -173,6 +173,12 @@ class HabitCheckerScreen(ScreenBase):
         if not event.pressed:
             return None
 
+        # If no habits, only allow going back
+        if not self.habits:
+            if event.input_type == InputType.LEFT:
+                return "menu"
+            return None
+
         if not self.checkbox_mode:
             # Habit selection mode
             if event.input_type == InputType.UP:

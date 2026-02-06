@@ -36,12 +36,12 @@ class GPIOInput(InputBase):
         # Set GPIO mode to BCM (Broadcom pin numbering)
         GPIO.setmode(GPIO.BCM)
 
-        # Pin to InputType mapping
+        # Pin to InputType mapping (rotated 90° to match display rotation)
         self.pin_map = {
-            6: InputType.UP,
-            19: InputType.DOWN,
-            5: InputType.LEFT,
-            26: InputType.RIGHT,
+            6: InputType.LEFT,       # Physical UP → LEFT (after rotation)
+            19: InputType.RIGHT,     # Physical DOWN → RIGHT (after rotation)
+            5: InputType.DOWN,       # Physical LEFT → DOWN (after rotation)
+            26: InputType.UP,        # Physical RIGHT → UP (after rotation)
             13: InputType.BUTTON_A,  # Joystick press acts as Button A
             21: InputType.BUTTON_A,  # KEY1
             20: InputType.BUTTON_B,  # KEY2
