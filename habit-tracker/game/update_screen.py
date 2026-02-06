@@ -22,7 +22,7 @@ class UpdateScreen(ScreenBase):
     # Layout constants
     TEXT_X = 45
     TEXT_Y = 50
-    TEXT_WIDTH = 80
+    TEXT_MAX_X = 113  # Max x position before wrapping
     OK_BUTTON_X = 23
     CANCEL_BUTTON_X = 55
     BUTTON_Y = 107
@@ -197,6 +197,45 @@ class UpdateScreen(ScreenBase):
             # The service should auto-restart anyway
             pass
 
+    def _wrap_text(self, text: str) -> list[str]:
+        """Wrap text to fit within TEXT_X to TEXT_MAX_X.
+
+        Args:
+            text: Text to wrap (can contain newlines)
+
+        Returns:
+            List of lines that fit within width
+        """
+        max_width = self.TEXT_MAX_X - self.TEXT_X
+        lines = []
+
+        # Process each line (respect existing newlines)
+        for paragraph in text.split('\n'):
+            words = paragraph.split()
+            if not words:
+                lines.append('')
+                continue
+
+            current_line = ""
+            for word in words:
+                test_line = f"{current_line} {word}".strip()
+                # Measure actual pixel width
+                bbox = self.font.getbbox(test_line)
+                text_width = bbox[2] - bbox[0]
+
+                if text_width <= max_width:
+                    current_line = test_line
+                else:
+                    # Line would be too long, start new line
+                    if current_line:
+                        lines.append(current_line)
+                    current_line = word
+
+            if current_line:
+                lines.append(current_line)
+
+        return lines
+
     def update(self, delta_time: float) -> None:
         """Update screen state - trigger git check on first frame.
 
@@ -218,11 +257,11 @@ class UpdateScreen(ScreenBase):
         # Draw background
         buffer.paste(self.bg_sprite, (0, 0), self.bg_sprite)
 
-        # Draw message text
+        # Draw message text with wrapping
         draw = ImageDraw.Draw(buffer)
 
-        # Split message into lines and draw
-        lines = self.message.split('\n')
+        # Wrap text to fit within TEXT_X to TEXT_MAX_X
+        lines = self._wrap_text(self.message)
         y_offset = self.TEXT_Y
         for line in lines:
             draw.text((self.TEXT_X, y_offset), line, fill=Config.COLOR_TEXT_DARK, font=self.font)
