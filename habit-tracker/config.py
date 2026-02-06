@@ -67,7 +67,7 @@ class Config:
 
     # Animation settings
     ANIM_FRAME_DELAY = 0.15  # 150ms per frame (~6.7 FPS for character animation)
-    SPEECH_BUBBLE_FRAME_DELAY = 0.1  # 100ms per frame for speech bubble animation
+    SPEECH_BUBBLE_FRAME_DELAY = 0.067  # 67ms per frame for speech bubble animation (1.5x speed)
 
     # New UI screen backgrounds
     SETTINGS_BG = os.path.join(SPRITES_PATH, "settings-page", "settings-bg.png")
