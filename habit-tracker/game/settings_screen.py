@@ -76,4 +76,4 @@ class SettingsScreen(ScreenBase):
             if i == self.selected_index:
                 pointer = self.icons_sheet.get_sprite(*icons.POINTER_SMALL)
                 pointer_flipped = pointer.transpose(Image.FLIP_LEFT_RIGHT)
-                buffer.paste(pointer_flipped, (self.POINTER_X, y_pos - 1), pointer_flipped)
+                buffer.paste(pointer_flipped, (self.POINTER_X, y_pos - 6), pointer_flipped)
