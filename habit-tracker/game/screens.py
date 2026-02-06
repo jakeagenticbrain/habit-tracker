@@ -8,6 +8,7 @@ from input.input_base import InputEvent, InputType
 from assets.sprite_loader import SpriteSheet, get_progress_bar_for_percentage, load_font, render_text
 from assets import icons
 from config import Config
+from game.speech_bubble import SpeechBubbleWidget
 
 
 class ScreenBase(ABC):
@@ -81,9 +82,17 @@ class HomeScreen(ScreenBase):
         self.face_names = list(self.face_animations.keys())
         self.current_face_index = 0
 
+        # Speech bubble widget
+        self.speech_bubble = SpeechBubbleWidget()
+
     def handle_input(self, event: InputEvent) -> Optional[str]:
-        """Handle input - Button C cycles faces, L/R navigate."""
+        """Handle input - Button B toggles speech, Button C cycles faces, L/R navigate."""
         if not event.pressed:
+            return None
+
+        # Button B toggles speech bubble
+        if event.input_type == InputType.BUTTON_B:
+            self.speech_bubble.toggle("Hello World")
             return None
 
         # Button C cycles facial expressions
@@ -111,6 +120,9 @@ class HomeScreen(ScreenBase):
             self.frame_timer = 0.0
             self.current_frame = (self.current_frame + 1) % 4  # Loop through 4 frames
 
+        # Update speech bubble
+        self.speech_bubble.update(delta_time)
+
     def render(self, buffer: Image.Image) -> None:
         """Render layered animated character sprites."""
         # Layer 1: Background (sky) - static
@@ -124,6 +136,9 @@ class HomeScreen(ScreenBase):
         current_face_name = self.face_names[self.current_face_index]
         face_frame = self.face_animations[current_face_name][self.current_frame]
         buffer.paste(face_frame, (0, 0), face_frame)
+
+        # Layer 4: Speech bubble (if visible)
+        self.speech_bubble.render(buffer)
 
 
 class MenuScreen(ScreenBase):

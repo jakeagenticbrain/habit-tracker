@@ -61,8 +61,13 @@ class Config:
         "little-smile": os.path.join(SPRITES_PATH, "face-little-smile-animated.png"),
     }
 
+    # Speech bubble sprites (64x64, needs 2x scaling to 128x128)
+    SPEECH_BUBBLE_STATIC = os.path.join(SPRITES_PATH, "speech-bubble.png")
+    SPEECH_BUBBLE_ANIM_SHEET = os.path.join(SPRITES_PATH, "speech-bubble-sheet.png")
+
     # Animation settings
     ANIM_FRAME_DELAY = 0.15  # 150ms per frame (~6.7 FPS for character animation)
+    SPEECH_BUBBLE_FRAME_DELAY = 0.1  # 100ms per frame for speech bubble animation
 
     # New UI screen backgrounds
     SETTINGS_BG = os.path.join(SPRITES_PATH, "settings-page", "settings-bg.png")
