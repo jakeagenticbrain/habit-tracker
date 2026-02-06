@@ -12,7 +12,7 @@ from config import Config
 class SettingsScreen(ScreenBase):
     """Settings menu screen with selectable options."""
 
-    MENU_ITEMS = ["Habits", "Update", "Theme", "Tutorial", "About"]
+    MENU_ITEMS = ["Habits", "Update", "About"]
     MENU_START_Y = 35  # Y position where menu items start (below title bar)
     MENU_LINE_HEIGHT = 12  # Pixels between menu items
     POINTER_X = 93  # X position for pointer icon (right side)
