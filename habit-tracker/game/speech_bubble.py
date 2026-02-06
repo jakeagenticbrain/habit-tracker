@@ -8,12 +8,12 @@ from config import Config
 class SpeechBubbleWidget:
     """Widget for animated speech bubble with scrolling text."""
 
-    # Text area within the bubble (scaled 2x from 64x64 coords: x14-55 → x28-110)
-    TEXT_START_X = 28
+    # Text area within the bubble (x25-105 on 128x128 display)
+    TEXT_START_X = 25
     TEXT_START_Y = 14
-    TEXT_END_X = 110  # 55 * 2 = 110 (cutoff point)
-    TEXT_MAX_WIDTH = 82  # 110 - 28 = 82px
-    MAX_CHARS_VISIBLE = 11  # Approximate chars that fit in 82px at 12pt (~7.5px/char)
+    TEXT_END_X = 105  # Right boundary cutoff
+    TEXT_MAX_WIDTH = 80  # 105 - 25 = 80px
+    MAX_CHARS_VISIBLE = 10  # Max chars that fit in 80px at 12pt (~8px/char)
 
     def __init__(self):
         """Initialize speech bubble widget."""
